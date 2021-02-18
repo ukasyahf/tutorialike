@@ -10,36 +10,43 @@
     "src": "https://1.bp.blogspot.com/-bs1rXYuQv9Y/YC6nOaB02EI/AAAAAAAAAIg/tBgphac-1m403E_JSXzQ2313J5CorsKBwCLcBGAsYHQ/s36/logo-w36-h36.png",
     "sizes": "36x36",
     "type": "image/png",
-    "density": "0.75"
+    "density": "0.75",
+    "purpose": "any maskable"
   }, {
     "src": "https://1.bp.blogspot.com/-ClraLQJ475M/YC6nPOwVYWI/AAAAAAAAAIo/9x-67D0fQA8PFC87_LNDah4JDmujWx_jgCLcBGAsYHQ/s48/logo-w48-h48.png",
     "sizes": "48x48",
     "type": "image/png",
-    "density": "1.0"
+    "density": "1.0",
+    "purpose": "any maskable"
   }, {
     "src": "https://1.bp.blogspot.com/-FXqXB66Ygso/YC6nPEdyAlI/AAAAAAAAAIw/TUEnOoOsfX0e4oCQlK7jJj5TypEgD275wCLcBGAsYHQ/s72/logo-w72-h72.png",
     "sizes": "72x72",
     "type": "image/png",
-    "density": "1.5"
+    "density": "1.5",
+    "purpose": "any maskable"
   }, {
     "src": "https://1.bp.blogspot.com/--oGkThb9jvs/YC6nPt9kZpI/AAAAAAAAAI0/bOKIXktCkOwa9myFFi_5iipDd7ZaUCsNgCLcBGAsYHQ/s96/logo-w96-h96.png",
     "sizes": "96x96",
     "type": "image/png",
-    "density": "2.0"
+    "density": "2.0",
+    "purpose": "any maskable"
   }, {
     "src": "https://1.bp.blogspot.com/-KDrbi5lzuKg/YC6nOdSQcbI/AAAAAAAAAIc/F5cwKpxAd_c2a8nRz4KW8TfMAQdaBEOcACLcBGAsYHQ/s144/logo-w144-h144.png",
     "sizes": "144x144",
     "type": "image/png",
-    "density": "3.0"
+    "density": "3.0",
+    "purpose": "any maskable"
   }, {
     "src": "https://1.bp.blogspot.com/-9KyYOZXYa7A/YC6nOWLELqI/AAAAAAAAAIk/fjIzDJ4ll5gwwJ1Zg17lig6wnSXTZmffQCLcBGAsYHQ/s192/logo-w192-h192.png",
     "sizes": "192x192",
     "type": "image/png",
-    "density": "4.0"
+    "density": "4.0",
+    "purpose": "any maskable"
   }, {
     "src": "https://1.bp.blogspot.com/-vXKRQeb2erg/YC6nPOP0dBI/AAAAAAAAAIs/RiWIltv1ZOU50YB_sWvk5CQ4JGMqXPz6gCLcBGAsYHQ/s512/logo-w512-h512.png",
     "sizes": "512x512",
     "type": "image/png",
-    "density": "5.0"
+    "density": "5.0",
+    "purpose": "any maskable"
   }]
 }
