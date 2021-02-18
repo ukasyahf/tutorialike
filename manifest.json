@@ -1,7 +1,7 @@
 {
   "name": "Tutorialike.com",
   "short_name": "Tutorialike.com",
-  "start_url": "/?m=1",
+  "start_url": "https://www.tutorialike.com/?m=1",
   "display": "standalone",
   "background_color": "#8D6E63",
   "theme_color": "#8d6E63",
