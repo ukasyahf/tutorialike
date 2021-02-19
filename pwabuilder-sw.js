@@ -1,47 +1,26 @@
-// This is the "Offline page" service worker
+var CACHE_VERSION = 1;
+var CURRENT_CACHES = {
+  prefetch: 'prefetch-cache-v' + CACHE_VERSION
+};
 
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
+self.addEventListener('install', function(event) {
+  var urlsToPrefetch = [
+    './static/pre_fetched.txt',
+    './static/pre_fetched.html',
+    'https://www.chromium.org/_/rsrc/1302286216006/config/customLogo.gif'
+  ];
 
-const CACHE = "pwabuilder-page";
+console.log('Handling install event. Resources to pre-fetch:', urlsToPrefetch);
 
-// TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "/p/offline.html";
-const offlineFallbackPage = "ToDo-replace-this-name.html";
-
-self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
-});
-
-self.addEventListener('install', async (event) => {
   event.waitUntil(
-    caches.open(CACHE)
-      .then((cache) => cache.add(offlineFallbackPage))
+    caches.open(CURRENT_CACHES['prefetch']).then(function(cache) {
+      return cache.addAll(urlsToPrefetch.map(function(urlToPrefetch) {
+        return new Request(urlToPrefetch, {mode: 'no-cors'});
+      })).then(function() {
+        console.log('All resources have been fetched and cached.');
+      });
+    }).catch(function(error) {
+      console.error('Pre-fetching failed:', error);
+    })
   );
-});
-
-if (workbox.navigationPreload.isSupported()) {
-  workbox.navigationPreload.enable();
-}
-
-self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith((async () => {
-      try {
-        const preloadResp = await event.preloadResponse;
-
-        if (preloadResp) {
-          return preloadResp;
-        }
-
-        const networkResp = await fetch(event.request);
-        return networkResp;
-      } catch (error) {
-
-        const cache = await caches.open(CACHE);
-        const cachedResp = await cache.match(offlineFallbackPage);
-        return cachedResp;
-      }
-    })());
-  }
 });
