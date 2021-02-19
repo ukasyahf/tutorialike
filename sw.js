@@ -1,302 +1,52 @@
-const CACHE_VERSION = 1;
+const CACHE_NAME = 'offline';
+const OFFLINE_URL = '/p/offline.html';
 
-const BASE_CACHE_FILES = [
-    '/manifest.json',
-    '/story.js',
-    '/-SiVv2r9oqU8/YC6r8A7bw-I/AAAAAAAAAJQ/gD7W8-ZTBYE98IHJxPrU7Gd64m7i2rT7QCLcBGAsYHQ/s152/logo-w152-h152.png',
-    '/-SiVv2r9oqU8/YC6r8A7bw-I/AAAAAAAAAJQ/gD7W8-ZTBYE98IHJxPrU7Gd64m7i2rT7QCLcBGAsYHQ/s152/logo-w152-h152.png',
-];
+self.addEventListener('install', function(event) {
+  console.log('[ServiceWorker] Install');
+  
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    // Setting {cache: 'reload'} in the new request will ensure that the response
+    // isn't fulfilled from the HTTP cache; i.e., it will be from the network.
+    await cache.add(new Request(OFFLINE_URL, {cache: 'reload'}));
+  })());
+  
+  self.skipWaiting();
+});
 
-const OFFLINE_CACHE_FILES = [
-    'https://js.storywidget.com/story.js',
-    'tutorialike.disqus.com/blogger_item.js',
-    'http://1.bp.blogspot.com/',
-    '/?m=1',
-];
+self.addEventListener('activate', (event) => {
+  console.log('[ServiceWorker] Activate');
+  event.waitUntil((async () => {
+    // Enable navigation preload if it's supported.
+    // See https://developers.google.com/web/updates/2017/02/navigation-preload
+    if ('navigationPreload' in self.registration) {
+      await self.registration.navigationPreload.enable();
+    }
+  })());
 
-const NOT_FOUND_CACHE_FILES = [
-    
-    '/search?q=',
-];
+  // Tell the active service worker to take control of the page immediately.
+  self.clients.claim();
+});
 
-const OFFLINE_PAGE = '/';
-const NOT_FOUND_PAGE = '/search?q=';
-
-const CACHE_VERSIONS = {
-    assets: 'assets-v' + CACHE_VERSION,
-    content: 'content-v' + CACHE_VERSION,
-    offline: 'offline-v' + CACHE_VERSION,
-    notFound: '404-v' + CACHE_VERSION,
-};
-
-const MAX_TTL = {
-    '/': 3600,
-    html: 3600,
-    json: 86400,
-    js: 86400,
-    css: 86400,
-};
-
-const SUPPORTED_METHODS = [
-    'GET',
-];
-
-function isBlacklisted(url) {
-    return (CACHE_BLACKLIST.length > 0) ? !CACHE_BLACKLIST.filter((rule) => {
-        if(typeof rule === 'function') {
-            return !rule(url);
-        } else {
-            return false;
+self.addEventListener('fetch', function(event) {
+  // console.log('[Service Worker] Fetch', event.request.url);
+  if (event.request.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        const preloadResponse = await event.preloadResponse;
+        if (preloadResponse) {
+          return preloadResponse;
         }
-    }).length : false
-}
 
-function getFileExtension(url) {
-    let extension = url.split('.').reverse()[0].split('?')[0];
-    return (extension.endsWith('/')) ? '/' : extension;
-}
+        const networkResponse = await fetch(event.request);
+        return networkResponse;
+      } catch (error) {
+        console.log('[Service Worker] Fetch failed; returning offline page instead.', error);
 
-function getTTL(url) {
-    if (typeof url === 'string') {
-        let extension = getFileExtension(url);
-        if (typeof MAX_TTL[extension] === 'number') {
-            return MAX_TTL[extension];
-        } else {
-            return null;
-        }
-    } else {
-        return null;
-    }
-}
-
-function installServiceWorker() {
-    return Promise.all(
-        [
-            caches.open(CACHE_VERSIONS.assets)
-                .then(
-                    (cache) => {
-                        return cache.addAll(BASE_CACHE_FILES);
-                    }
-                ),
-            caches.open(CACHE_VERSIONS.offline)
-                .then(
-                    (cache) => {
-                        return cache.addAll(OFFLINE_CACHE_FILES);
-                    }
-                ),
-            caches.open(CACHE_VERSIONS.notFound)
-                .then(
-                    (cache) => {
-                        return cache.addAll(NOT_FOUND_CACHE_FILES);
-                    }
-                )
-        ]
-    );
-}
-
-function cleanupLegacyCache() {
-
-    let currentCaches = Object.keys(CACHE_VERSIONS)
-        .map(
-            (key) => {
-                return CACHE_VERSIONS[key];
-            }
-        );
-
-    return new Promise(
-        (resolve, reject) => {
-
-            caches.keys()
-                .then(
-                    (keys) => {
-                        return legacyKeys = keys.filter(
-                            (key) => {
-                                return !~currentCaches.indexOf(key);
-                            }
-                        );
-                    }
-                )
-                .then(
-                    (legacy) => {
-                        if (legacy.length) {
-                            Promise.all(
-                                legacy.map(
-                                    (legacyKey) => {
-                                        return caches.delete(legacyKey)
-                                    }
-                                )
-                            )
-                                .then(
-                                    () => {
-                                        resolve()
-                                    }
-                                )
-                                .catch(
-                                    (err) => {
-                                        reject(err);
-                                    }
-                                );
-                        } else {
-                            resolve();
-                        }
-                    }
-                )
-                .catch(
-                    () => {
-                        reject();
-                    }
-                );
-
-        }
-    );
-}
-
-
-self.addEventListener(
-    'install', event => {
-        event.waitUntil(installServiceWorker());
-    }
-);
-
-// The activate handler takes care of cleaning up old caches.
-self.addEventListener(
-    'activate', event => {
-        event.waitUntil(
-            Promise.all(
-                [
-                    cleanupLegacyCache(),
-                ]
-            )
-                .catch(
-                    (err) => {
-                        event.skipWaiting();
-                    }
-                )
-        );
-    }
-);
-
-self.addEventListener(
-    'fetch', event => {
-
-        event.respondWith(
-            caches.open(CACHE_VERSIONS.content)
-                .then(
-                    (cache) => {
-
-                        return cache.match(event.request)
-                            .then(
-                                (response) => {
-
-                                    if (response) {
-
-                                        let headers = response.headers.entries();
-                                        let date = null;
-
-                                        for (let pair of headers) {
-                                            if (pair[0] === 'date') {
-                                                date = new Date(pair[1]);
-                                            }
-                                        }
-
-                                        if (date) {
-                                            let age = parseInt((new Date().getTime() - date.getTime()) / 1000);
-                                            let ttl = getTTL(event.request.url);
-
-                                            if (ttl && age > ttl) {
-
-                                                return new Promise(
-                                                    (resolve) => {
-
-                                                        return fetch(event.request)
-                                                            .then(
-                                                                (updatedResponse) => {
-                                                                    if (updatedResponse) {
-                                                                        cache.put(event.request, updatedResponse.clone());
-                                                                        resolve(updatedResponse);
-                                                                    } else {
-                                                                        resolve(response)
-                                                                    }
-                                                                }
-                                                            )
-                                                            .catch(
-                                                                () => {
-                                                                    resolve(response);
-                                                                }
-                                                            );
-
-                                                    }
-                                                )
-                                                    .catch(
-                                                        (err) => {
-                                                            return response;
-                                                        }
-                                                    );
-                                            } else {
-                                                return response;
-                                            }
-
-                                        } else {
-                                            return response;
-                                        }
-
-                                    } else {
-                                        return null;
-                                    }
-                                }
-                            )
-                            .then(
-                                (response) => {
-                                    if (response) {
-                                        return response;
-                                    } else {
-                                        return fetch(event.request) 
-                                            .then(
-                                                (response) => {
-
-                                                    if(response.status < 400) {
-                                                        if (~SUPPORTED_METHODS.indexOf(event.request.method) && !isBlacklisted(event.request.url)) {
-                                                            cache.put(event.request, response.clone());
-                                                        }
-                                                        return response;
-                                                    } 
-                                                    else {
-                                                        return caches.open(CACHE_VERSIONS.notFound).then((cache) => {
-                                                            return cache.match(NOT_FOUND_PAGE);
-                                                        })
-                                                    }
-                                                }
-                                            )
-                                            .then((response) => {
-                                                if(response) {
-                                                    return response;
-                                                }
-                                            })
-                                            .catch(
-                                                () => {
-
-                                                    return caches.open(CACHE_VERSIONS.offline)
-                                                        .then(
-                                                            (offlineCache) => {
-                                                                return offlineCache.match(OFFLINE_PAGE)
-                                                            }
-                                                        )
-
-                                                }
-                                            )
-                                        
-                                    }
-                                }
-                            )
-                            .catch(
-                                (error) => {
-                                    console.error('  Error in fetch handler:', error);
-                                    throw error;
-                                }
-                            );
-                    }
-                )
-        );
-
-    }
-);
+        const cache = await caches.open(CACHE_NAME);
+        const cachedResponse = await cache.match(OFFLINE_URL);
+        return cachedResponse;
+      }
+    })());
+  }
+});
