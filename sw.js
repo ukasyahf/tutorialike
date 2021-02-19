@@ -2,29 +2,21 @@ const CACHE_VERSION = 1;
 
 const BASE_CACHE_FILES = [
     '/manifest.json',
-    '/css/bootstrap.min.css',
-    '/css/style.css',
-    '/js/jquery-3.2.1.slim.min.js',
-    '/js/popper.min.js',
-    '/js/bootstrap.min.js',
     '/story.js',
     '/-SiVv2r9oqU8/YC6r8A7bw-I/AAAAAAAAAJQ/gD7W8-ZTBYE98IHJxPrU7Gd64m7i2rT7QCLcBGAsYHQ/s152/logo-w152-h152.png',
     '/-SiVv2r9oqU8/YC6r8A7bw-I/AAAAAAAAAJQ/gD7W8-ZTBYE98IHJxPrU7Gd64m7i2rT7QCLcBGAsYHQ/s152/logo-w152-h152.png',
 ];
 
 const OFFLINE_CACHE_FILES = [
-    '/css/bootstrap.min.css',
-    '/css/style.css',
-    '/js/jquery-3.2.1.slim.min.js',
-    '/js/popper.min.js',
-    '/js/bootstrap.min.js',
-    '/img/logo.png',
-    '/img/favicon.png',
+    'https://js.storywidget.com/story.js',
+    'tutorialike.disqus.com/blogger_item.js',
+    'http://1.bp.blogspot.com/',
+    '/?m=1',
 ];
 
 const NOT_FOUND_CACHE_FILES = [
     
-    '/404.html',
+    '/search?q=',
 ];
 
 const OFFLINE_PAGE = '/';
