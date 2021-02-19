@@ -20,7 +20,7 @@ const NOT_FOUND_CACHE_FILES = [
 ];
 
 const OFFLINE_PAGE = '/';
-const NOT_FOUND_PAGE = '/404.html';
+const NOT_FOUND_PAGE = '/search?q=';
 
 const CACHE_VERSIONS = {
     assets: 'assets-v' + CACHE_VERSION,
